@@ -73,19 +73,33 @@ class ProblemSet:
         self.problems = []
         
         while i < len(lines):
-            add = Problem()
+            check = (re.findall("^Type:\"(.*)\"", lines[i]))[0]
+            if check == "Problem":
+                add = Problem()
+            elif check == "MathProblem":
+                add = MathProblem()
+            else:
+                print("error")
+                return -1 
             i = add.load(lines,i)
             self.problems.append(add)
 
 def test():
-    a = Problem("10*10",100)
-    b = Problem("10+10",20)
-    c = Problem("10-10",0)
-    d = Problem("10/10",1)
-    e = Problem("10%10",0)
+    a = Problem("1.) 10*10",100)
+    b = Problem("2.) 10+10",20)
+    c = Problem("3.) 10-10",0)
+    d = Problem("4.) 10/10",1)
+    e = Problem("5.) 10%10",0)
+    f = MathProblem("6.) 100/10","10","Divide","Divide")
+    g = MathProblem("7.) 100/10","10","Divide","Divide")
+    h = MathProblem("8.) 100/10","10","Divide","Divide")
+    i = Problem("9.) 10%10",0)
+    j = MathProblem("10.) 100/10","10","Divide","Divide")
+    k = Problem("11.) 10%10",0)
 
-    pset = ProblemSet("Arithmetic Problem Set",a,b,c,d)
-    pset.add_problem(e)
+    pset = ProblemSet("Arithmetic Problem Set",a,b,c,d,e,f,g,h,i)
+    pset.add_problem(j)
+    pset.add_problem(k)
     assert (pset.get_problem(0) is a) , "get_problem(0)"
     assert (pset.get_name() == "Arithmetic Problem Set"), "naming"
     pset.save("checkme")
