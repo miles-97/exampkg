@@ -1,12 +1,13 @@
 #/usr/bin/env python3
 
+import re
 from lib.Problem import Problem
 
 class MathProblem(Problem):
     __solution = ""
     __hint = ""
 
-    def __init__(self,question,answer,solution,hint):
+    def __init__(self,question="",answer="",solution="",hint=""):
         self.solution = solution
         self.hint = hint
         Problem.__init__(self,question,answer)
@@ -31,7 +32,15 @@ class MathProblem(Problem):
         return "{}Solution:\"{}\"\nHint:\"{}\"\n".format(Problem.as_string(self),self.solution,self.hint)
 
     def load(self,lines,index):
-        pass
+        a = (re.findall("^Question:\"(.*)\"",lines[index+1]))[0]
+        b = (re.findall("^Answer:\"(.*)\"",lines[index+2]))[0]
+        c = (re.findall("^Solution:\"(.*)\"",lines[index+3]))[0]
+        d = (re.findall("^Hint:\"(.*)\"",lines[index+4]))[0]
+        self.question = a
+        self.answer = b
+        self.solution = c
+        self.hint = d
+        return index + 5
 
 def test():
     q1 = "What's 10 * 10?"
@@ -48,7 +57,7 @@ def test():
     assert (a.get_hint() == h1), "get_hint"
     assert (a.get_solution() == s1), "get_solution"
     assert (a.check_answer(a1) == True) , "check_answer"
-    print(a.as_string())
+    #print(a.as_string())
 
     a.set_question(q2)
     a.set_answer(a2)
@@ -59,7 +68,19 @@ def test():
     assert (a.get_hint() == h2) , "get_hint"
     assert (a.get_solution() == s2) , "get_solution"
     assert (a.check_answer(a2) == True),"check_answer"
+    #print(a.as_string())
 
-    print(a.as_string())
+    lines = ["Type:\"MathProblem\"","Question:\"Q1\"","Answer:\"A1\"","Solution:\"S1\"","Hint:\"H1\"","Type:\"MathProblem\"","Question:\"Q2\"","Answer:\"A2\"","Solution:\"S2\"","Hint:\"H2\""]
+
+    loadtest1 = MathProblem()
+    loadtest2 = MathProblem()
+
+    index = loadtest1.load(lines,0)
+    loadtest2.load(lines,index)
+
+    print(loadtest1.as_string())
+    print(loadtest2.as_string())
+
+
 
 if __name__ == "__main__": test()
