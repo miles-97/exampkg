@@ -1,9 +1,4 @@
-#!/usr/bin/env python
-
-#TODO
-#Make this class more abstract
-#Allow for any type of Problem to be saved/loaded
-#Requires addition of save/load methods to Problem Objects
+#!/usr/bin/env python3
 
 import re
 from lib.Problem import Problem
@@ -33,6 +28,7 @@ class ProblemSet:
         for p in self.problems:
             if p is problem:
                 self.problems.remove(p)
+
     def pop_problem(self):
         self.problems.pop()
 
@@ -84,18 +80,32 @@ class ProblemSet:
             i = add.load(lines,i)
             self.problems.append(add)
 
-def test():
-    a = Problem("1.) 10*10",100)
-    b = Problem("2.) 10+10",20)
-    c = Problem("3.) 10-10",0)
-    d = Problem("4.) 10/10",1)
-    e = Problem("5.) 10%10",0)
-    f = MathProblem("6.) 100/10","10","Divide","Divide")
-    g = MathProblem("7.) 100/10","10","Divide","Divide")
-    h = MathProblem("8.) 100/10","10","Divide","Divide")
-    i = Problem("9.) 10%10",0)
-    j = MathProblem("10.) 100/10","10","Divide","Divide")
-    k = Problem("11.) 10%10",0)
+    #return a copy of the ProblemSet Obj
+    def copy(self):
+        cps = ProblemSet(self.name,(self.problems[0].copy()))
+
+        if self.problems != None :
+            i = 1
+            while i < len(self.problems):
+                cps.add_problem((self.problems[i]).copy())
+                i = i + 1
+
+        return cps
+
+#end of class
+
+def test_stuff():
+    a = Problem("10*10",100)
+    b = Problem("10+10",20)
+    c = Problem("10-10",0)
+    d = Problem("10/10",1)
+    e = Problem("10%10",0)
+    f = MathProblem("100/10","10","Divide","Divide")
+    g = MathProblem("100/10","10","Divide","Divide")
+    h = MathProblem("100/10","10","Divide","Divide")
+    i = Problem("10%10",0)
+    j = MathProblem("100/10","10","Divide","Divide")
+    k = Problem("10%10",0)
 
     pset = ProblemSet("Arithmetic Problem Set",a,b,c,d,e,f,g,h,i)
     pset.add_problem(j)
@@ -104,9 +114,22 @@ def test():
     assert (pset.get_name() == "Arithmetic Problem Set"), "naming"
     pset.save("checkme")
 
-    load_set = ProblemSet(None)
+    load_set = ProblemSet()
     load_set.load("checkme")
     print(load_set.as_string()) 
+
+def test_copy():
+    a = ProblemSet()
+    a.load("checkme")
+    b = a.copy()
+    a.save("check_a")
+    b.save("check_b")
+    assert ( (a is b) == False ), "copy()"
+    assert ( a.as_string() == b.as_string()), "copy()"
+
+def test():
+    test_stuff()
+    test_copy()
 
 
 if __name__ == "__main__": test()
