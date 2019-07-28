@@ -38,6 +38,9 @@ class Problem:
         self.answer = z
         return index + 3
 
+    def copy(self):
+        return Problem(self.question,self.answer)
+
 #end of Problem class
 
 def test_problem():
@@ -71,8 +74,15 @@ def test_load():
     #print(a.as_string())
     #print(b.as_string())
 
+def test_copy():
+    a = Problem("What letter comes after B?","C")
+    b = a.copy()
+    assert ( (a is b) == False ), "copy()"
+    assert ( a.as_string() == b.as_string()), "copy()"
+
 def test():
     test_problem()
     test_load()
+    test_copy()
 
 if __name__ == "__main__": test()
