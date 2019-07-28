@@ -42,6 +42,9 @@ class MathProblem(Problem):
         self.hint = d
         return index + 5
 
+    def copy(self):
+        return MathProblem(self.question,self.answer,self.solution,self.hint)
+
 def test():
     q1 = "What's 10 * 10?"
     a1 = 100
