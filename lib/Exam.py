@@ -5,33 +5,104 @@ from lib.MathProblem import MathProblem
 from lib.ProblemSet import ProblemSet
 
 class Exam(ProblemSet):
-    __points_per_problem = 0 #val > 0 if all problems have the same val
-                             #val = 0 if problems have diff vals
-    #__points_arr = []        #if each problem has a different point value
+    points = []
 
-    def __init__(self,name="",points=0,problem_set=None):
+    def __init__(self,name="",points=None,problem_set=None):
         super(Exam,self).__init__(name)
-        self.points_per_problem = points
-
-        if problem_set != None:
+        if problem_set != None and points != None : 
+            self.points = points.copy()
             copy = problem_set.copy()
             i = 0
             while i < copy.get_length():
-                self.add_problem(copy.get_problem(i))
+                super(Exam,self).add_problem(copy.get_problem(i))
                 i = i + 1
+        elif problem_set == None and points == None :
+            this_line_does_nothing = 0
+        else:
+            print("You must init points and problem_set at the same time")
 
-    def set_points_per_problem(self,ppp):
-        self.points_per_problem = ppp
+    def add_problem(self,problem,points):
+        super(Exam,self).add_problem(problem.copy())
+        self.points.append(points)
 
-    def get_points_per_problem(self):
-        return self.points_per_problem
+    def save(self,filename):
+        super(Exam,self).save(filename) #write problemset
 
-    def get_percent_per_question(self):
-        return (100 * self.points_per_problem) / self.get_length()
+        try:
+            with open(filename,'r+') as f:
+                content = f.read() #copy problemset
+                f.seek(0,0)
+                for p in self.points:
+                    f.write("{} ".format(p)) #write points to SOF
+                f.write('\n' + content) #rewrite problemset
+        except FileNotFoundError:
+            print("\"{}\" does not exist",format(filename))
 
-def main():
+    def load(self,filename):
+        lines = []
+        try:
+            with open(filename,'r') as f:
+                lines = f.readlines() #copy problemset
+        except FileNotFoundError:
+            print("\"{}\" does not exist",format(filename))
+
+        lines = [s[:-1] for s in lines] #strip \n
+        str_points = lines[0].split(" ") #get points as string
+        points = []
+        for s in str_points:
+            if s.isdigit():
+                points.append(int(s))
+        self.points = points
+        del lines[0]
+        super(Exam,self).load_lines(lines)
+
+    def get_points_of_problem(self,index):
+        try:
+            return self.points[index]
+        except IndexError:
+            print("Out of range")
+
+    def get_percent_of_problem(self,index):
+        try:
+            total = 0
+            for x in self.points:
+                total = total + x
+            return self.points[index] / total
+        except IndexError:
+            print("Out of range")
+
+    def get_percent_of_problem_rounded(self,index):
+        return round(get_percent_of_problem(index),2)
+
+    def get_points(self):
+        return self.points
+
+    def get_total_points(self):
+        total = 0
+        for i in self.points:
+            total += i
+
+        return total
+
+def test():
     ps = ProblemSet()
     ps.load("checkme")
-    exam = Exam("shit",1,ps)
+    
+    test_list = [1,2,1,3,4,2,1,1,2,1,1]
+    exam = Exam("Exam_Test",test_list,ps)
 
-if __name__ == "__main__" : main()
+    prob = Problem("Will you leave NeverLand?","Yes")
+    exam.add_problem(prob,5)
+    test_list.append(5)
+
+    assert (exam.get_total_points() == 24), "get_total_points()"
+    assert (exam.get_points() == test_list), "get_points()"
+
+    exam.save("exam_test")
+    load_exam = Exam()
+    load_exam.load("exam_test")
+
+    assert(load_exam.as_string() == exam.as_string()),"load/save"
+    assert(load_exam.get_points() == exam.get_points()),"load/save"
+
+if __name__ == "__main__" : test()
