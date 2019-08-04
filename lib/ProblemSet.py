@@ -47,6 +47,14 @@ class ProblemSet:
             ret = "{}{}".format(ret,p.as_string())
         return ret
 
+    def as_numbered_string(self):
+        ret = self.name + "\n"
+        i = 0
+        for p in self.problems:
+            i = i + 1
+            ret = "{}{}\n{}\n".format(ret,i,p.as_string())
+        return ret
+
     def save(self,filename):
         try:
             with open(filename,'w') as f:
@@ -56,18 +64,19 @@ class ProblemSet:
 
     def load(self,filename):
         lines = []
-
         try:
             with open(filename,'r') as f:
                 lines = f.readlines()
         except FileNotFoundError: 
             print("\"{}\" does not exist".format(filename))
 
-        lines = [s[:-1] for s in lines] 
+        lines = [s[:-1] for s in lines] #remove newlines
+        self.load_lines(lines)
+
+    def load_lines(self,lines):
         self.name = lines[0]
-        i = 1
         self.problems = []
-        
+        i = 1
         while i < len(lines):
             check = (re.findall("^Type:\"(.*)\"", lines[i]))[0]
             if check == "Problem":
@@ -116,7 +125,7 @@ def test_stuff():
 
     load_set = ProblemSet()
     load_set.load("checkme")
-    print(load_set.as_string()) 
+    assert(pset.as_string() == load_set.as_string()),"loading/saving error"
 
 def test_copy():
     a = ProblemSet()
