@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-from lib.Problem import Problem
-from lib.MathProblem import MathProblem
-from lib.ProblemSet import ProblemSet
+from lib.Problem        import Problem
+from lib.MathProblem    import MathProblem
+from lib.ProblemSet     import ProblemSet
+from lib.Exam           import Exam
 
 #checks user input against yes/no for a given string
 #true on yes, false on no
@@ -62,7 +63,30 @@ def create_problem_set():
                 continue
 
 def create_exam():
-    print("I do nothing right now")
+    if get_user_continue("Would you like to create an exam?")==False:
+        return
+    #else     
+    exam = Exam(get_user_input("name"))
+    while True:
+        print( "1.) Add Problems")
+        print( "2.) View Exam")
+        print( "3.) Save Exam")
+        print("99.) Exit")
+        u_choice = input("Enter your choice: ")
+        if   u_choice == "1":
+            while get_user_continue("Would you like to add a problem?"):
+                problem = create_problem()
+                points = int(get_user_input("Point Value"))
+                exam.add_problem(problem,points)
+        elif u_choice == "2":
+            print(exam.as_string())
+        elif u_choice == "3":
+            exam.save(get_user_input("filename"))
+        elif u_choice == "99":
+            if get_user_continue("Are you sure you'd like to continue? Any unsaved date will be lost."):
+                return
+            else:
+                continue
 
 def modify_problem_set():
     print("I do nothing right now")
@@ -116,8 +140,6 @@ def main():
 
 def test():
     main()
-    #prob = create_problem()
-    #print(prob.as_string())
 
 
 if __name__ == "__main__" : test()
