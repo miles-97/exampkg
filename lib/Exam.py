@@ -18,9 +18,9 @@ class Exam(ProblemSet):
                 super(Exam,self).add_problem(copy.get_problem(i))
                 i = i + 1
 
-    def add_problem(self,problem,points):
+    def add_problem(self,problem,point_val):
         super(Exam,self).add_problem(problem.copy())
-        self.points.append(points)
+        self.points.append(point_val)
 
     def remove_problem(self, problem):
         index = self.find_problem(problem)
@@ -29,6 +29,33 @@ class Exam(ProblemSet):
             return 0
         else:
             return -1
+
+    def replace_problem(self,index,problem,point_val):
+        if self.check_index(index):
+            self.problems[index] = problem
+            self.points[index] = point_val
+
+    def insert_problem(self,index,problem,point_val):
+        if not(self.check_index(index)):
+            return
+        temp = []
+        for i in range(len(self.points)):
+            if i == index:
+                temp.append(point_val)
+            temp.append(self.points[i])
+        self.points = temp.copy()
+        super(Exam,self).insert_problem(index,problem)
+
+    def swap_problem(self,ind1,ind2):
+        if super(Exam,self).swap_problem(ind1,ind2) == -1:
+            return -1
+        temp = self.points[ind1]
+        self.points[ind1] = self.points[ind2]
+        self.points[ind2] = temp
+
+    def move_problem(self,org,dst):
+        pass
+
 
     def pop_problem(self):
         self.problems.pop()
@@ -66,6 +93,9 @@ class Exam(ProblemSet):
         del lines[0] #first line is points so delete them before passing lines to super
         super(Exam,self).load_lines(lines)
 
+    def consolidate(exam,*args):
+        pass
+
     def get_points_of_problem(self,index):
         try:
             return self.points[index]
@@ -86,27 +116,12 @@ class Exam(ProblemSet):
 
     def get_total_points(self):
         return sum(self.points)
+    
+    def test_fill_points(self,n):
+        for i in range(n):
+            self.points.append(random.randint(1,5))
 
-#n = number of problems
-def fill_problem_set(n):
-    ps = ProblemSet()
-    questions = [ "Will you descend into the belly of the whale?",
-            "Will you integrate your shadow?",
-            "Will you clean up your room?",
-            "Will you seek out a heavy load?",
-            "Will you leave Neverland?",
-            "Will you stand up straight with your shoulders back?",
-            "Will you say what you think?"]
-    for i in range(n):
-        if i > len(questions)-1:
-            prob = Problem("Q"+str(i) , "A"+str(i))
-        else:
-            prob = Problem(questions[i],"Yes")
-        ps.add_problem(prob)
-
-    return ps
-
-def fill_points_list(n):
+def fill_points(n):
     l = []
     for i in range(n):
         l.append(random.randint(1,5))
@@ -115,7 +130,8 @@ def fill_points_list(n):
 def test():
     ps = ProblemSet("Problem_Set")
     ps.test_fill(10)
-    points = fill_points_list(10)
+    points = fill_points(10)
+
     
     exam = Exam("Exam_Test",points,ps)
 
@@ -136,6 +152,22 @@ def test():
 
     load_exam.remove_problem(prob)
     assert(load_exam.find_problem(prob) == -1), "remove_problem"
+    
+    a = load_exam.get_problem(0)
+    ap = load_exam.get_points_of_problem(0)
+    b = load_exam.get_problem(9)
+    bp = load_exam.get_points_of_problem(9)
+
+    load_exam.swap_problem(0,9)
+    assert(load_exam.get_problem(0).as_string() == b.as_string()),"swap"
+    assert(load_exam.get_points_of_problem(0) == bp),"swap"
+    assert(load_exam.get_problem(9).as_string() == a.as_string()),"swap"
+    assert(load_exam.get_points_of_problem(9) == ap),"swap"
+
+    c = Problem("Move Prob","Move Ans")
+    load_exam.insert_problem(5,c,3)
+    assert(load_exam.get_problem(5).as_string() == c.as_string()),"ins"
+    assert(load_exam.get_points_of_problem(5) == 3),"in"
 
 #end of test()
 
