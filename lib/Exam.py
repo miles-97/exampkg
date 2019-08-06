@@ -3,6 +3,7 @@
 from lib.Problem import Problem
 from lib.MathProblem import MathProblem
 from lib.ProblemSet import ProblemSet
+import random
 
 class Exam(ProblemSet):
     points = []
@@ -16,14 +17,22 @@ class Exam(ProblemSet):
             while i < copy.get_length():
                 super(Exam,self).add_problem(copy.get_problem(i))
                 i = i + 1
-        elif problem_set == None and points == None :
-            this_line_does_nothing = 0
-        else:
-            print("You must init points and problem_set at the same time")
 
     def add_problem(self,problem,points):
         super(Exam,self).add_problem(problem.copy())
         self.points.append(points)
+
+    def remove_problem(self, problem):
+        index = self.find_problem(problem)
+        if super(Exam,self).remove_problem(problem) == 0:
+            self.points.pop(index)
+            return 0
+        else:
+            return -1
+
+    def pop_problem(self):
+        self.problems.pop()
+        self.points.pop()
 
     def save(self,filename):
         super(Exam,self).save(filename) #write problemset
@@ -40,6 +49,7 @@ class Exam(ProblemSet):
 
     def load(self,filename):
         lines = []
+
         try:
             with open(filename,'r') as f:
                 lines = f.readlines() #copy problemset
@@ -49,11 +59,11 @@ class Exam(ProblemSet):
         lines = [s[:-1] for s in lines] #strip \n
         str_points = lines[0].split(" ") #get points as string
         points = []
-        for s in str_points:
+        for s in str_points: #reassigning to org arr fails bc last element is always ''
             if s.isdigit():
                 points.append(int(s))
         self.points = points
-        del lines[0]
+        del lines[0] #first line is points so delete them before passing lines to super
         super(Exam,self).load_lines(lines)
 
     def get_points_of_problem(self,index):
@@ -64,10 +74,7 @@ class Exam(ProblemSet):
 
     def get_percent_of_problem(self,index):
         try:
-            total = 0
-            for x in self.points:
-                total = total + x
-            return self.points[index] / total
+            return self.points[index] / sum(self.points)
         except IndexError:
             print("Out of range")
 
@@ -78,31 +85,58 @@ class Exam(ProblemSet):
         return self.points
 
     def get_total_points(self):
-        total = 0
-        for i in self.points:
-            total += i
+        return sum(self.points)
 
-        return total
+#n = number of problems
+def fill_problem_set(n):
+    ps = ProblemSet()
+    questions = [ "Will you descend into the belly of the whale?",
+            "Will you integrate your shadow?",
+            "Will you clean up your room?",
+            "Will you seek out a heavy load?",
+            "Will you leave Neverland?",
+            "Will you stand up straight with your shoulders back?",
+            "Will you say what you think?"]
+    for i in range(n):
+        if i > len(questions)-1:
+            prob = Problem("Q"+str(i) , "A"+str(i))
+        else:
+            prob = Problem(questions[i],"Yes")
+        ps.add_problem(prob)
+
+    return ps
+
+def fill_points_list(n):
+    l = []
+    for i in range(n):
+        l.append(random.randint(1,5))
+    return l
 
 def test():
-    ps = ProblemSet()
-    ps.load("checkme")
+    ps = ProblemSet("Problem_Set")
+    ps.test_fill(10)
+    points = fill_points_list(10)
     
-    test_list = [1,2,1,3,4,2,1,1,2,1,1]
-    exam = Exam("Exam_Test",test_list,ps)
+    exam = Exam("Exam_Test",points,ps)
 
-    prob = Problem("Will you leave NeverLand?","Yes")
-    exam.add_problem(prob,5)
-    test_list.append(5)
+    prob = Problem("Q_Test","Q_Ans")
+    exam.add_problem(Problem("Q_Test","Q_Ans"),5)
+    points.append(5)
 
-    assert (exam.get_total_points() == 24), "get_total_points()"
-    assert (exam.get_points() == test_list), "get_points()"
+    assert (exam.get_total_points() == sum(points)), "get_total_points()"
+    assert (exam.get_points() == points), "get_points()"
 
     exam.save("exam_test")
     load_exam = Exam()
     load_exam.load("exam_test")
-
+   
     assert(load_exam.as_string() == exam.as_string()),"load/save"
     assert(load_exam.get_points() == exam.get_points()),"load/save"
+    assert(load_exam.get_percent_of_problem(0) == exam.get_percent_of_problem(0)),"get % prob"
+
+    load_exam.remove_problem(prob)
+    assert(load_exam.find_problem(prob) == -1), "remove_problem"
+
+#end of test()
 
 if __name__ == "__main__" : test()
