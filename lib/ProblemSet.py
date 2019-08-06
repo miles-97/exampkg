@@ -58,18 +58,12 @@ class ProblemSet:
             temp.append(self.problems[i])
         self.problems = temp.copy()
 
-    def swap_problem(self,index1,index2):
-        if not(self.check_index(index1) and self.check_index(index2)) and (index1 != index2):
-            return
-        temp = []
-        for i in range(self.get_length()):
-            if i == index1:
-                temp.append(self.problems[index2])
-            elif i == index2:
-                temp.append(self.problems[index1])
-            else:
-                temp.append(self.problems[i])
-        self.problems = temp.copy()
+    def swap_problem(self,ind1,ind2):
+        if not(self.check_index(ind1)and self.check_index(ind2))and(ind1 != ind2):
+            return -1
+        temp = self.problems[ind1]
+        self.problems[ind1] = self.problems[ind2]
+        self.problems[ind2] = temp
 
     def move_problem(self,org,dst):
         if not(self.check_index(org) and self.check_index(dst)) and (org != dst):
@@ -204,10 +198,10 @@ def test():
     first = swap.get_problem(0)
     last  = swap.get_problem(9)
     swap.swap_problem(0,9)
-    assert((swap.get_problem(0)).as_string() == last.as_string()),"replace"
-    assert((swap.get_problem(9)).as_string() == first.as_string()),"replace"
+    assert((swap.get_problem(0)).as_string() == last.as_string()),"swap"
+    assert((swap.get_problem(9)).as_string() == first.as_string()),"swap"
     swap.move_problem(9,0)
-    assert((swap.get_problem(0)).as_string() == first.as_string()),"replace"
+    assert((swap.get_problem(0)).as_string() == first.as_string()),"move"
 
     a = Problem("10*10",100)
     b = Problem("10+10",20)
