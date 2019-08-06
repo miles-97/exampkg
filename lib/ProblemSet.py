@@ -24,19 +24,72 @@ class ProblemSet:
     def add_problem(self, problem):
         self.problems.append(problem)
 
+    #returns index of a problem or -1 if it is not in this problemset
+    def find_problem(self, problem):
+        for i in range(len(self.problems)):
+            if problem == self.problems[i]:
+                return i
+        return -1
+            
+    #returns 0 if remove was successful
+    #returns -1 if problem is not in problem set
     def remove_problem(self, problem):
-        for p in self.problems:
-            if p is problem:
-                self.problems.remove(p)
+        index = self.find_problem(problem)
+        if index != -1:
+            self.problems.remove(problem)
+            return 0
+        else:
+            return -1
+
+    #replaces the problem @ index with problem
+    def replace_problem(self,index,problem):
+        if self.check_index(index):
+            self.problems[index] = problem
+    
+    #inserts problem before index 
+    def insert_problem(self,index,problem):
+        if not(self.check_index(index)):
+            return
+
+        temp = []
+        for i in range(self.get_length()):
+            if i == index:
+                temp.append(problem)
+            temp.append(self.problems[i])
+        self.problems = temp.copy()
+
+    def swap_problem(self,index1,index2):
+        if not(self.check_index(index1) and self.check_index(index2)) and (index1 != index2):
+            return
+        temp = []
+        for i in range(self.get_length()):
+            if i == index1:
+                temp.append(self.problems[index2])
+            elif i == index2:
+                temp.append(self.problems[index1])
+            else:
+                temp.append(self.problems[i])
+        self.problems = temp.copy()
+
+    def move_problem(self,org,dst):
+        if not(self.check_index(org) and self.check_index(dst)) and (org != dst):
+            return
+
+        temp = []
+        for i in range(self.get_length()):
+            if i == dst:
+                temp.append(self.problems[org])
+            elif i != org:
+                temp.append(self.problems[i])
+
+        self.problems = temp.copy()
 
     def pop_problem(self):
         self.problems.pop()
 
     def get_problem(self,index):
-        try:
+        if self.check_index(index):
             return self.problems[index]
-        except IndexError:
-            print("Specify a valid index: {} - {}".format(0,len(self.problems)))
 
     def get_length(self):
         return len(self.problems)
@@ -101,44 +154,97 @@ class ProblemSet:
 
         return cps
 
+    def consolidate(self, ps, *args):
+        for i in range(ps.get_length()):
+            self.problems.append(ps.get_problem(i))
+        for s in args:
+            for i in range(s.get_length()):
+                self.problems.append(s.get_problem(i))
+
+    def test_fill_quotes(self):
+        questions = [ "Will you descend into the belly of the whale?",
+            "Will you integrate your shadow?",
+            "Will you clean up your room?",
+            "Will you seek out a heavy load?",
+            "Will you leave Neverland?",
+            "Will you stand up straight with your shoulders back?",
+            "Will you say what you think?"]
+
+        for q in questions:
+            self.add_problem(Problem(q,"Yes"))
+
+    def test_fill(self,n):
+        for i in range(n):
+            ind = str(self.get_length()+1)
+            self.add_problem(Problem("Q"+str(ind) , "A"+str(ind)))
+
+    def test_fill_math(self,n):
+        for i in range(n):
+            ind = str(self.get_length()+1)
+            self.add_problem(MathProblem("Q"+ind , "A"+ind, "S"+ind, "H"+ind))
+
+    def check_index(self,i):
+        if i < 0 or i > self.get_length():
+            print("Specify a valid index: {} - {}".format(0,len(self.problems)))
+            return False
+        else:
+            return True
+
+
 #end of class
 
-def test_stuff():
+def test():
+    pset = ProblemSet("Problem_Set")
+    pset.test_fill_quotes()
+    pset.test_fill_math(10)
+    pset.test_fill(10)
+
+    swap = ProblemSet("swap_test")
+    swap.test_fill(10)
+    first = swap.get_problem(0)
+    last  = swap.get_problem(9)
+    swap.swap_problem(0,9)
+    assert((swap.get_problem(0)).as_string() == last.as_string()),"replace"
+    assert((swap.get_problem(9)).as_string() == first.as_string()),"replace"
+    swap.move_problem(9,0)
+    assert((swap.get_problem(0)).as_string() == first.as_string()),"replace"
+
     a = Problem("10*10",100)
     b = Problem("10+10",20)
-    c = Problem("10-10",0)
-    d = Problem("10/10",1)
-    e = Problem("10%10",0)
-    f = MathProblem("100/10","10","Divide","Divide")
-    g = MathProblem("100/10","10","Divide","Divide")
-    h = MathProblem("100/10","10","Divide","Divide")
-    i = Problem("10%10",0)
-    j = MathProblem("100/10","10","Divide","Divide")
-    k = Problem("10%10",0)
 
-    pset = ProblemSet("Arithmetic Problem Set",a,b,c,d,e,f,g,h,i)
-    pset.add_problem(j)
-    pset.add_problem(k)
-    assert (pset.get_problem(0) is a) , "get_problem(0)"
-    assert (pset.get_name() == "Arithmetic Problem Set"), "naming"
+    pset.add_problem(a)
+    pset.add_problem(b)
+    pset.remove_problem(b)
+
+    pset.replace_problem(0,a)
+    assert((pset.get_problem(0)).as_string() == a.as_string()) , "replace_problem(0,a)"
+
+
+    pset.insert_problem(5,a)
+    assert((pset.get_problem(5)).as_string() == a.as_string()) , "replace_problem(0,a)"
+
+    assert (pset.find_problem(b) == -1),"remove_problem(k)"
+    assert (pset.get_problem(pset.get_length()-1) is a) , "get_problem(0)"
+    assert (pset.get_name() == "Problem_Set"), "naming"
     pset.save("checkme")
 
     load_set = ProblemSet()
     load_set.load("checkme")
     assert(pset.as_string() == load_set.as_string()),"loading/saving error"
 
-def test_copy():
-    a = ProblemSet()
-    a.load("checkme")
-    b = a.copy()
-    a.save("check_a")
-    b.save("check_b")
-    assert ( (a is b) == False ), "copy()"
-    assert ( a.as_string() == b.as_string()), "copy()"
+    copy_set = load_set.copy()
+    assert ( (copy_set is load_set) == False ), "copy()"
+    assert ( copy_set.as_string() == load_set.as_string()), "copy()"
 
-def test():
-    test_stuff()
-    test_copy()
+    p1 = ProblemSet()
+    p2 = ProblemSet()
+    p3 = ProblemSet()
 
+    p1.test_fill_quotes()
+    p2.test_fill_math(7)
+    p3.test_fill(7)
+    test_string = (p1.as_string()).rstrip() + (p2.as_string()).rstrip() + p3.as_string()
+    p1.consolidate(p2,p3)
+    assert(p1.as_string() == test_string), "consolidate"
 
 if __name__ == "__main__": test()
