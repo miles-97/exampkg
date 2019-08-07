@@ -9,7 +9,7 @@ from lib.Exam           import Exam
 #true on yes, false on no
 def get_user_continue(string):
     while True:
-        u_choice = input("{} {}".format(string,(" (y/n): ")))
+        u_choice = input("{} {}".format(string,(" (y / n): ")))
         if u_choice == "n":
             return False
         elif u_choice == "y":
@@ -89,7 +89,36 @@ def create_exam():
                 continue
 
 def modify_problem_set():
-    print("I do nothing right now")
+    ps = ProblemSet(get_user_input("Filename where Problem Set is stored: "))
+    while True:
+        print(" 1.) View Problem Set")
+        print(" 2.) Delete Problem")
+        print(" 3.) Move Problem")
+        print(" 4.) Add New Problem")
+        print(" 5.) Insert New Problem")
+        print(" 6.) Consolidate with Existing Problem Set")
+        print(" 7.) Delete Problem Set")
+        print("98.) Help")
+        print("99.) Exit")
+        choice = input("Enter your choice: ")
+        if choice == '1':
+            print("I have no purpose")
+        elif choice == '2':
+            print("I have no purpose")
+        elif choice == '3':
+            print("I have no purpose")
+        elif choice == '4':
+            print("I have no purpose")
+        elif choice == '5':
+            print("I have no purpose")
+        elif choice == '6':
+            print("I have no purpose")
+        elif choice == '7':
+            print("I have no purpose")
+        elif choice == '98':
+            print("I have no purpose")
+        elif choice == '99':
+            print("I have no purpose")
 
 def modify_exam():
     print("I do nothing right now")
