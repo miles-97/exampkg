@@ -89,7 +89,10 @@ def create_exam():
                 continue
 
 def modify_problem_set():
-    ps = ProblemSet(get_user_input("Filename where Problem Set is stored: "))
+    filename = get_user_input("Filename where Problem Set is stored: ")
+    ps = ProblemSet()
+    ps.load(filename)
+
     while True:
         print(" 1.) View Problem Set")
         print(" 2.) Delete Problem")
@@ -102,7 +105,7 @@ def modify_problem_set():
         print("99.) Exit")
         choice = input("Enter your choice: ")
         if choice == '1':
-            print("I have no purpose")
+            print(ps.as_numbered_string())
         elif choice == '2':
             print("I have no purpose")
         elif choice == '3':
@@ -116,9 +119,12 @@ def modify_problem_set():
         elif choice == '7':
             print("I have no purpose")
         elif choice == '98':
-            print("I have no purpose")
+            print("I can't help ya bucko.")
         elif choice == '99':
-            print("I have no purpose")
+            print("Exiting Modify Problem Set Menu")
+            return
+        else:
+            print("Unrecognized Input")
 
 def modify_exam():
     print("I do nothing right now")
