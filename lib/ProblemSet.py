@@ -73,7 +73,7 @@ class ProblemSet:
         for i in range(self.get_length()):
             if i == dst:
                 temp.append(self.problems[org])
-            elif i != org:
+            if i != org:
                 temp.append(self.problems[i])
 
         self.problems = temp.copy()
@@ -138,13 +138,11 @@ class ProblemSet:
 
     #return a copy of the ProblemSet Obj
     def copy(self):
-        cps = ProblemSet(self.name,(self.problems[0].copy()))
+        cps = ProblemSet(self.name)
 
         if self.problems != None :
-            i = 1
-            while i < len(self.problems):
+            for i in range(self.get_length()):
                 cps.add_problem((self.problems[i]).copy())
-                i = i + 1
 
         return cps
 
