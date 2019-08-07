@@ -12,11 +12,9 @@ class Exam(ProblemSet):
         super(Exam,self).__init__(name)
         if problem_set != None and points != None : 
             self.points = points.copy()
-            copy = problem_set.copy()
-            i = 0
-            while i < copy.get_length():
-                super(Exam,self).add_problem(copy.get_problem(i))
-                i = i + 1
+            temp = problem_set.copy()
+            for i in range(temp.get_length()):
+                self.problems.append(temp.get_problem(i))
 
     def add_problem(self,problem,point_val):
         super(Exam,self).add_problem(problem.copy())
@@ -54,8 +52,15 @@ class Exam(ProblemSet):
         self.points[ind2] = temp
 
     def move_problem(self,org,dst):
-        pass
+        super(Exam,self).move_problem(org,dst)
 
+        temp = []
+        for i in range(self.get_length()):
+            if i == dst:
+                temp.append(self.points[org])
+            if i != org:
+                temp.append(self.points[i])
+        self.points = temp.copy()
 
     def pop_problem(self):
         self.problems.pop()
@@ -93,8 +98,14 @@ class Exam(ProblemSet):
         del lines[0] #first line is points so delete them before passing lines to super
         super(Exam,self).load_lines(lines)
 
-    def consolidate(exam,*args):
-        pass
+    def consolidate(self,exam,*args):
+        super(Exam,self).consolidate(exam,*args)
+
+        for i in range(exam.get_length()):
+            self.points.append(exam.get_points_of_problem(i))
+        for e in args:
+            for i in range(e.get_length()):
+                self.points.append(e.get_points_of_problem(i))
 
     def get_points_of_problem(self,index):
         try:
@@ -121,6 +132,25 @@ class Exam(ProblemSet):
         for i in range(n):
             self.points.append(random.randint(1,5))
 
+    def test_fill_quotes(self):
+        questions = [ "Will you descend into the belly of the whale?",
+            "Will you integrate your shadow?",
+            "Will you clean up your room?",
+            "Will you seek out a heavy load?",
+            "Will you leave Neverland?",
+            "Will you stand up straight with your shoulders back?",
+            "Will you say what you think?"]
+
+        for q in questions:
+            self.add_problem(Problem(q,"Yes"),1)
+
+
+    def as_text_file(self,filename):
+        with open(filename,'w') as f:
+            f.write("\t\t{}\n".format(self.get_name()))
+            for i in range(self.get_length()):
+                f.write("{}.) {} ({})\n\n\n".format(i+1,self.get_problem(i).get_question(),self.points[i]))
+
 def fill_points(n):
     l = []
     for i in range(n):
@@ -132,11 +162,10 @@ def test():
     ps.test_fill(10)
     points = fill_points(10)
 
-    
     exam = Exam("Exam_Test",points,ps)
 
     prob = Problem("Q_Test","Q_Ans")
-    exam.add_problem(Problem("Q_Test","Q_Ans"),5)
+    exam.add_problem(prob,5)
     points.append(5)
 
     assert (exam.get_total_points() == sum(points)), "get_total_points()"
@@ -164,10 +193,34 @@ def test():
     assert(load_exam.get_problem(9).as_string() == a.as_string()),"swap"
     assert(load_exam.get_points_of_problem(9) == ap),"swap"
 
-    c = Problem("Move Prob","Move Ans")
+    c = Problem("Ins Prob","Ins Ans")
     load_exam.insert_problem(5,c,3)
     assert(load_exam.get_problem(5).as_string() == c.as_string()),"ins"
     assert(load_exam.get_points_of_problem(5) == 3),"in"
+
+    d = load_exam.get_problem(1)
+    dp = load_exam.get_points_of_problem(1)
+    load_exam.move_problem(1,10)
+    assert(load_exam.get_problem(9).as_string() == d.as_string()),"move"
+    assert(load_exam.get_points_of_problem(9) == dp),"move"
+
+    ps1 = ProblemSet()
+    ps2 = ProblemSet()
+    ps3 = ProblemSet()
+    ps1.test_fill(7)
+    ps2.test_fill_quotes()
+    ps3.test_fill_math(7)
+    e1 = Exam("consolidate1",fill_points(7),ps1)
+    e2 = Exam("consolidate1",fill_points(7),ps2)
+    e3 = Exam("consolidate1",fill_points(7),ps3)
+    test_string = (e1.as_string()).rstrip() + (e2.as_string()).rstrip() + e3.as_string()
+    e1.consolidate(e2,e3)
+    assert(e1.get_problem(7).as_string() == e2.get_problem(0).as_string()),"consolidate"
+    assert(e1.get_problem(14).as_string() == e3.get_problem(0).as_string()),"consolidate"
+
+    text_exam = Exam("Meaning Test")
+    text_exam.test_fill_quotes()
+    text_exam.as_text_file("Meaning_Test.txt")
 
 #end of test()
 
