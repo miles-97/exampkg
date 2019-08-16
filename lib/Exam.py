@@ -24,18 +24,17 @@ class Exam(ProblemSet):
         index = self.find_problem(problem)
         if super(Exam,self).remove_problem(problem) == 0:
             self.points.pop(index)
-            return 0
         else:
             return -1
 
     def replace_problem(self,index,problem,point_val):
         if self.check_index(index):
-            self.problems[index] = problem
+            self.problems[index] = problem.copy()
             self.points[index] = point_val
 
     def insert_problem(self,index,problem,point_val):
         if not(self.check_index(index)):
-            return
+            return -1
         temp = []
         for i in range(len(self.points)):
             if i == index:

@@ -107,7 +107,10 @@ def modify_problem_set():
         if choice == '1':
             print(ps.as_numbered_string())
         elif choice == '2':
-            print("I have no purpose")
+            index = -1
+            while ps.remove_problem(index) == -1:
+                index = get_user_input("Problem Number: ")
+    
         elif choice == '3':
             print("I have no purpose")
         elif choice == '4':
