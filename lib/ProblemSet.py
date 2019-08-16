@@ -49,7 +49,7 @@ class ProblemSet:
     #inserts problem before index 
     def insert_problem(self,index,problem):
         if not(self.check_index(index)):
-            return
+            return -1
 
         temp = []
         for i in range(self.get_length()):
@@ -67,7 +67,7 @@ class ProblemSet:
 
     def move_problem(self,org,dst):
         if not(self.check_index(org) and self.check_index(dst)) and (org != dst):
-            return
+            return -1
 
         temp = []
         for i in range(self.get_length()):
@@ -138,13 +138,7 @@ class ProblemSet:
 
     #return a copy of the ProblemSet Obj
     def copy(self):
-        cps = ProblemSet(self.name)
-
-        if self.problems != None :
-            for i in range(self.get_length()):
-                cps.add_problem((self.problems[i]).copy())
-
-        return cps
+        return ProblemSet(self.name,*[p.copy() for p in self.problems])
 
     def consolidate(self, ps, *args):
         for i in range(ps.get_length()):
@@ -238,5 +232,9 @@ def test():
     test_string = (p1.as_string()).rstrip() + (p2.as_string()).rstrip() + p3.as_string()
     p1.consolidate(p2,p3)
     assert(p1.as_string() == test_string), "consolidate"
+
+    null = ProblemSet("null")
+    null_copy = null.copy()
+    print(null_copy.as_string())
 
 if __name__ == "__main__": test()

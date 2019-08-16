@@ -60,7 +60,6 @@ def test():
     assert (a.get_hint() == h1), "get_hint"
     assert (a.get_solution() == s1), "get_solution"
     assert (a.check_answer(a1) == True) , "check_answer"
-    #print(a.as_string())
 
     a.set_question(q2)
     a.set_answer(a2)
@@ -71,19 +70,18 @@ def test():
     assert (a.get_hint() == h2) , "get_hint"
     assert (a.get_solution() == s2) , "get_solution"
     assert (a.check_answer(a2) == True),"check_answer"
-    #print(a.as_string())
 
     lines = ["Type:\"MathProblem\"","Question:\"Q1\"","Answer:\"A1\"","Solution:\"S1\"","Hint:\"H1\"","Type:\"MathProblem\"","Question:\"Q2\"","Answer:\"A2\"","Solution:\"S2\"","Hint:\"H2\""]
 
     loadtest1 = MathProblem()
     loadtest2 = MathProblem()
-
     index = loadtest1.load(lines,0)
     loadtest2.load(lines,index)
 
-    print(loadtest1.as_string())
-    print(loadtest2.as_string())
+    loadtest1cmp = MathProblem("Q1","A1","S1","H1")
+    loadtest2cmp = MathProblem("Q2","A2","S2","H2")
 
-
+    assert(loadtest1cmp.as_string() == loadtest1.as_string()),"load()"
+    assert(loadtest2cmp.as_string() == loadtest2.as_string()),"load()"
 
 if __name__ == "__main__": test()
