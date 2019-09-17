@@ -27,7 +27,7 @@ class ProblemSet:
     #returns index of a problem or -1 if it is not in this problemset
     def find_problem(self, problem):
         for i in range(len(self.problems)):
-            if problem == self.problems[i]:
+            if problem.as_string() == self.problems[i].as_string():
                 return i
         return -1
             
@@ -41,10 +41,18 @@ class ProblemSet:
         else:
             return -1
 
+    def remove_index(self, index):
+        if self.check_index(index):
+            self.problems.pop(index)
+            return 0
+        else:
+            return -1
+
     #replaces the problem @ index with problem
     def replace_problem(self,index,problem):
         if self.check_index(index):
             self.problems[index] = problem
+        return -1
     
     #inserts problem before index 
     def insert_problem(self,index,problem):
@@ -57,26 +65,36 @@ class ProblemSet:
                 temp.append(problem)
             temp.append(self.problems[i])
         self.problems = temp.copy()
+        return 0
 
     def swap_problem(self,ind1,ind2):
-        if not(self.check_index(ind1)and self.check_index(ind2))and(ind1 != ind2):
+        if not(self.check_index(ind1)) or not(self.check_index(ind2)) or (ind1 == ind2):
             return -1
         temp = self.problems[ind1]
         self.problems[ind1] = self.problems[ind2]
         self.problems[ind2] = temp
+        return 0
 
     def move_problem(self,org,dst):
-        if not(self.check_index(org) and self.check_index(dst)) and (org != dst):
+        if not(self.check_index(org)) or not(self.check_index(dst)) or (org == dst):
             return -1
 
         temp = []
-        for i in range(self.get_length()):
-            if i == dst:
-                temp.append(self.problems[org])
-            if i != org:
-                temp.append(self.problems[i])
+        if org < dst:
+            for i in range(self.get_length()):
+                if i != org:
+                    temp.append(self.problems[i])
+                if i == dst:
+                    temp.append(self.problems[org])
+        else:
+            for i in range(self.get_length()):
+                if i == dst:
+                    temp.append(self.problems[org])
+                if i != org:
+                    temp.append(self.problems[i])
 
         self.problems = temp.copy()
+        return 0
 
     def pop_problem(self):
         self.problems.pop()
@@ -88,54 +106,6 @@ class ProblemSet:
     def get_length(self):
         return len(self.problems)
     
-    def as_string(self):
-        ret = self.name + "\n"
-        for p in self.problems:
-            ret = "{}{}".format(ret,p.as_string())
-        return ret
-
-    def as_numbered_string(self):
-        ret = self.name + "\n"
-        i = 0
-        for p in self.problems:
-            i = i + 1
-            ret = "{}{}\n{}\n".format(ret,i,p.as_string())
-        return ret
-
-    def save(self,filename):
-        try:
-            with open(filename,'w') as f:
-                f.write(self.as_string())           
-        except FileNotFoundError:
-            print("\"{}\" does not exist".format(filename))
-
-    def load(self,filename):
-        lines = []
-        try:
-            with open(filename,'r') as f:
-                lines = f.readlines()
-        except FileNotFoundError: 
-            print("\"{}\" does not exist".format(filename))
-
-        lines = [s[:-1] for s in lines] #remove newlines
-        self.load_lines(lines)
-
-    def load_lines(self,lines):
-        self.name = lines[0]
-        self.problems = []
-        i = 1
-        while i < len(lines):
-            check = (re.findall("^Type:\"(.*)\"", lines[i]))[0]
-            if check == "Problem":
-                add = Problem()
-            elif check == "MathProblem":
-                add = MathProblem()
-            else:
-                print("error")
-                return -1 
-            i = add.load(lines,i)
-            self.problems.append(add)
-
     #return a copy of the ProblemSet Obj
     def copy(self):
         return ProblemSet(self.name,*[p.copy() for p in self.problems])
@@ -146,6 +116,39 @@ class ProblemSet:
         for s in args:
             for i in range(s.get_length()):
                 self.problems.append(s.get_problem(i))
+
+    def check_index(self,i):
+        if i < 0 or i >= self.get_length():
+            return False
+        else:
+            return True
+
+    def as_string(self):
+        return self.name+ '\n' + ''.join([(p.as_string() + "\n") for p in self.problems])
+
+    def save(self,filename):
+        with open(filename,'w') as f:
+            f.write(self.as_string())
+
+    def load(self,filename):
+        with open(filename,'r') as f:
+            lines = f.readlines()
+
+        self.name = lines[0].rstrip()
+        for i in range(1,len(lines)):
+            values = lines[i].split("|") #get | seperated values
+            p = ""
+            if values[0] == "Problem":
+                p = Problem(values[1],values[2])
+            elif values[0] == "MathProblem":
+                p = MathProblem(values[1],values[2],values[3],values[4])
+            self.add_problem(p)
+
+    def as_text_file(self,filename):
+        with open(filename,'w') as f:
+            for i in range(len(self.problems)):
+                f.write("{}.) {}\n\n".format(i+1,self.problems[i].get_question()))
+
 
     def test_fill_quotes(self):
         questions = [ "Will you descend into the belly of the whale?",
@@ -169,72 +172,7 @@ class ProblemSet:
             ind = str(self.get_length()+1)
             self.add_problem(MathProblem("Q"+ind , "A"+ind, "S"+ind, "H"+ind))
 
-    def check_index(self,i):
-        if i < 0 or i > self.get_length():
-            print("Specify a valid index: {} - {}".format(0,len(self.problems)))
-            return False
-        else:
-            return True
-
-
 #end of class
 
-def test():
-    pset = ProblemSet("Problem_Set")
-    pset.test_fill_quotes()
-    pset.test_fill_math(10)
-    pset.test_fill(10)
-
-    swap = ProblemSet("swap_test")
-    swap.test_fill(10)
-    first = swap.get_problem(0)
-    last  = swap.get_problem(9)
-    swap.swap_problem(0,9)
-    assert((swap.get_problem(0)).as_string() == last.as_string()),"swap"
-    assert((swap.get_problem(9)).as_string() == first.as_string()),"swap"
-    swap.move_problem(9,0)
-    assert((swap.get_problem(0)).as_string() == first.as_string()),"move"
-
-    a = Problem("10*10",100)
-    b = Problem("10+10",20)
-
-    pset.add_problem(a)
-    pset.add_problem(b)
-    pset.remove_problem(b)
-
-    pset.replace_problem(0,a)
-    assert((pset.get_problem(0)).as_string() == a.as_string()) , "replace_problem(0,a)"
-
-
-    pset.insert_problem(5,a)
-    assert((pset.get_problem(5)).as_string() == a.as_string()) , "replace_problem(0,a)"
-
-    assert (pset.find_problem(b) == -1),"remove_problem(k)"
-    assert (pset.get_problem(pset.get_length()-1) is a) , "get_problem(0)"
-    assert (pset.get_name() == "Problem_Set"), "naming"
-    pset.save("checkme")
-
-    load_set = ProblemSet()
-    load_set.load("checkme")
-    assert(pset.as_string() == load_set.as_string()),"loading/saving error"
-
-    copy_set = load_set.copy()
-    assert ( (copy_set is load_set) == False ), "copy()"
-    assert ( copy_set.as_string() == load_set.as_string()), "copy()"
-
-    p1 = ProblemSet()
-    p2 = ProblemSet()
-    p3 = ProblemSet()
-
-    p1.test_fill_quotes()
-    p2.test_fill_math(7)
-    p3.test_fill(7)
-    test_string = (p1.as_string()).rstrip() + (p2.as_string()).rstrip() + p3.as_string()
-    p1.consolidate(p2,p3)
-    assert(p1.as_string() == test_string), "consolidate"
-
-    null = ProblemSet("null")
-    null_copy = null.copy()
-    print(null_copy.as_string())
-
-if __name__ == "__main__": test()
+if __name__ == "__main__": 
+    print("testing moved to test/Test_ProblemSet.py")
