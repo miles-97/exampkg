@@ -28,15 +28,11 @@ class Problem:
         return (self.answer == a)
 
     def as_string(self):
-        return "Type:\"{}\"\nQuestion:\"{}\"\nAnswer:\"{}\"\n".format(self.type,self.question,self.answer)
+        return "Problem|{}|{}|".format(self.question,self.answer)
     
-    def load(self,lines,index):
-        self.question = (re.findall("^Question:\"(.*)\"", lines[index+1]))[0]
-        self.answer = (re.findall("^Answer:\"(.*)\"", lines[index+2]))[0]
-        return index + 3
-
     def copy(self):
         return Problem(self.question,self.answer)
+
 
 if __name__ == "__main__": 
     print("Testing was moved to Test_Problem.py")
