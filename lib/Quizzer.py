@@ -13,6 +13,8 @@ def administer_problem_set(ps):
     for i in range(ps.get_length()):
         if prompt_question(ps.get_problem(i)):
             score += 1
+        else:
+            print("Right Answer:{}".format(ps.get_problem(i).get_answer()))
     print("({}/{})".format(score,ps.get_length()))
 
 def administer_exam(ex):
@@ -20,6 +22,8 @@ def administer_exam(ex):
     for i in range(ex.get_length()):
         if prompt_question(ex.get_problem(i)):
             score += ex.get_points_of_problem(i)
+        else:
+            print("Right Answer:{}".format(ex.get_problem(i).get_answer()))
     print("({}/{})".format(score,ex.get_total_points()))
 
 def prompt_question(p):
