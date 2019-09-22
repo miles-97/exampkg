@@ -5,7 +5,7 @@ and point values assosciated with those problems.
 
 To create a "problem set" or "exam" run:
 
-	./setup.sh 
+	./setup
 	
 	python3 MakeExam.py
 
