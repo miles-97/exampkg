@@ -42,6 +42,7 @@ def create_problem_set():
     if get_user_continue("Would you like to create a problem set?")==False:
         return
     #else     
+    saved = False
     ps = ProblemSet(get_user_input("name"))
     while True:
         print( "1.) Add Problems")
@@ -52,20 +53,23 @@ def create_problem_set():
         if   u_choice == "1":
             while get_user_continue("Would you like to add a problem?"):
                 ps.add_problem(create_problem())
+            saved = False
         elif u_choice == "2":
             print(ps.as_string())
         elif u_choice == "3":
             ps.save(get_user_input("filename"))
+            saved = True
         elif u_choice == "99":
-            if get_user_continue("Are you sure you'd like to continue? Any unsaved date will be lost."):
-                return
-            else:
+            if not(saved) and get_user_continue("Would you like to save your changes?"):
                 continue
+            else:
+                return
 
 def create_exam():
     if get_user_continue("Would you like to create an exam?")==False:
         return
     #else     
+    saved = False
     exam = Exam(get_user_input("name"))
     while True:
         print( "1.) Add Problems")
@@ -78,20 +82,23 @@ def create_exam():
                 problem = create_problem()
                 points = int(get_user_input("Point Value"))
                 exam.add_problem(problem,points)
+            saved = False
         elif u_choice == "2":
             print(exam.as_string())
         elif u_choice == "3":
             exam.save(get_user_input("filename"))
+            saved = True
         elif u_choice == "99":
-            if get_user_continue("Are you sure you'd like to continue? Any unsaved date will be lost."):
-                return
-            else:
+            if not(saved) and get_user_continue("Would you like to save your changes?"):
                 continue
+            else:
+                return
 
 def modify_problem_set():
     filename = get_user_input("Filename where Problem Set is stored: ")
     ps = ProblemSet()
     ps.load(filename)
+    saved = True
 
     while True:
         print(" 1.) View Problem Set")
@@ -99,44 +106,132 @@ def modify_problem_set():
         print(" 3.) Move Problem")
         print(" 4.) Add New Problem")
         print(" 5.) Insert New Problem")
-        print(" 6.) Consolidate with Existing Problem Set")
-        print(" 7.) Delete Problem Set")
+        print(" 6.) Save Problem Set")
+        #print(" 6.) Consolidate with Existing Problem Set")
         print("98.) Help")
         print("99.) Exit")
         choice = input("Enter your choice: ")
         if choice == '1':
-            print(ps.as_numbered_string())
+            print(ps.as_string())
+
         elif choice == '2':
-            index = -1
-            while ps.remove_problem(index) == -1:
-                index = get_user_input("Problem Number: ")
-    
+            while get_user_continue("Would you like to remove a problem?"):
+                ps.remove_index(int(get_user_input("Problem Number: ")))
+            saved = False
+
         elif choice == '3':
-            print("I have no purpose")
+            while get_user_continue("Would you like to remove a problem?"):
+                org = int(get_user_input("Origin Index: "))
+                dst = int(get_user_input("Destination Index: "))
+                ps.move_problem(org,dst)
+            saved = False
+
         elif choice == '4':
-            print("I have no purpose")
+            while get_user_continue("Would you like to add a problem?"):
+                ps.add_problem(create_problem())
+            saved = False
+
         elif choice == '5':
-            print("I have no purpose")
-        elif choice == '6':
-            print("I have no purpose")
-        elif choice == '7':
-            print("I have no purpose")
+            while get_user_continue("Would you like to insert a problem?"):
+                prob = create_problem()
+                ind  = int(get_user_input("Where would like to insert this problem?"))
+                ps.insert_problem(ind,prob)
+            saved = False
+
+        elif choice == "6":
+            ps.save(get_user_input("filename"))
+            saved = True
+
+        #elif choice == '6':
+            #print("I have no purpose")
+
         elif choice == '98':
             print("I can't help ya bucko.")
-        elif choice == '99':
-            print("Exiting Modify Problem Set Menu")
-            return
+
+        elif choice == "99":
+            if not(saved) and get_user_continue("Would you like to save your changes?"):
+                continue
+            else:
+                return
         else:
             print("Unrecognized Input")
 
 def modify_exam():
-    print("I do nothing right now")
+    filename = get_user_input("Filename where Exam is stored: ")
+    ex = Exam()
+    ex.load(filename)
+    saved = True
+
+    while True:
+        print(" 1.) View Exam")
+        print(" 2.) Delete Problem")
+        print(" 3.) Move Problem")
+        print(" 4.) Add New Problem")
+        print(" 5.) Insert New Problem")
+        print(" 6.) Save Exam")
+        #print(" 6.) Consolidate with Existing Problem Set")
+        print("98.) Help")
+        print("99.) Exit")
+        choice = input("Enter your choice: ")
+        if choice == '1':
+            print(ex.as_string())
+
+        elif choice == '2':
+            while get_user_continue("Would you like to remove a problem?"):
+                ex.remove_index(int(get_user_input("Problem Number: ")))
+            saved = False
+
+        elif choice == '3':
+            while get_user_continue("Would you like to move a problem?"):
+                org = int(get_user_input("Origin Index: "))
+                dst = int(get_user_input("Destination Index: "))
+                ex.move_problem(org,dst)
+            saved = False
+
+        elif choice == '4':
+            while get_user_continue("Would you like to add a problem?"):
+                prob = create_problem()
+                point  = get_user_input("Point Value: ")
+                ex.add_problem(prob,point)
+            saved = False
+
+        elif choice == '5':
+            while get_user_continue("Would you like to insert a problem?"):
+                prob = create_problem()
+                point  = get_user_input("Point Value: ")
+                ind  = int(get_user_input("where would like to insert this problem?"))
+                ex.insert_problem(ind,prob,point)
+            saved = False
+
+        elif choice == "6":
+            ex.save(get_user_input("filename"))
+            saved = True
+
+        #elif choice == '6':
+            #print("I have no purpose")
+
+        elif choice == '98':
+            print("I can't help ya bucko.")
+
+        elif choice == "99":
+            if not(saved) and get_user_continue("Would you like to save your changes?"):
+                continue
+            else:
+                return
+        else:
+            print("Unrecognized Input")
 
 def view_problem_set():
-    print("I do nothing right now")
+    filename = get_user_input("Filename where Problem Set is stored: ")
+    ps = ProblemSet()
+    ps.load(filename)
+    print(ps.as_string())
 
 def view_exam():
-    print("I do nothing right now")
+    filename = get_user_input("Filename where Problem Set is stored: ")
+    ex = Exam()
+    ex.load(filename)
+    print(ex.as_string())
 
 def help_me():
     print("I can't help you, yet")
